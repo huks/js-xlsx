@@ -49,6 +49,9 @@ Use readAsBinaryString: (when available) <input type="checkbox" name="userabs" c
 <script src="xlsx.js"></script>
 <!-- uncomment the next line here and in xlsxworker.js for ODS support -->
 <script src="ods.js"></script>
+<!-- write xlsx -->
+<script type="text/javascript" src="Blob.js"></script>
+<script type="text/javascript" src="FileSaver.js"></script>
 <script>
 var X = XLSX;
 var XW = {
@@ -88,6 +91,7 @@ function fixdata(data) {
 }
 
 function ab2str(data) {
+	console.log("function.ab2str is called");
 	var o = "", l = 0, w = 10240;
 	for(; l<data.byteLength/w; ++l) o+=String.fromCharCode.apply(null,new Uint16Array(data.slice(l*w,l*w+w)));
 	o+=String.fromCharCode.apply(null, new Uint16Array(data.slice(l*w)));
@@ -114,12 +118,21 @@ function xw_noxfer(data, cb) {
 }
 
 function xw_xfer(data, cb) {
+	console.log("function.xw_xfer is called");
 	var worker = new Worker(rABS ? XW.rABS : XW.norABS);
 	worker.onmessage = function(e) {
 		switch(e.data.t) {
-			case 'ready': break;
-			case 'e': console.error(e.data.d); break;
-			default: xx=ab2str(e.data).replace(/\n/g,"\\n").replace(/\r/g,"\\r"); console.log("done"); cb(JSON.parse(xx)); break;
+			case 'ready':
+				//console.log("case: ready");
+				break;
+			case 'e':
+				console.error(e.data.d);
+				break;
+			default:
+				//console.log("case: default");
+				xx=ab2str(e.data).replace(/\n/g,"\\n").replace(/\r/g,"\\r");
+				console.log("done"); cb(JSON.parse(xx));
+				break;
 		}
 	};
 	if(rABS) {
@@ -184,22 +197,42 @@ function to_formulae(workbook) {
 
 var tarea = document.getElementById('b64data');
 function b64it() {
+	console.log("function.b64bit is called");
 	if(typeof console !== 'undefined') console.log("onload", new Date());
 	var wb = X.read(tarea.value, {type: 'base64',WTF:wtf_mode});
 	process_wb(wb);
 }
 
 function process_wb(wb) {
+	console.log("function.process_wb is called");
 	var output = "";
 	switch(get_radio_value("format")) {
 		case "json":
+			console.log("output format: json");
 			output = JSON.stringify(to_json(wb), 2, 2);
 			break;
 		case "form":
 			output = to_formulae(wb);
 			break;
 		default:
-		output = to_csv(wb);
+			console.log("output format: csv");			
+			output = to_csv(wb);
+			
+
+
+			var wbout = XLSX.write(wb, {bookType:'xlsx', bookSST:true, type: 'binary'});
+
+			function s2ab_blob(s) {
+				var buf = new ArrayBuffer(s.length);
+				var view = new Uint8Array(buf);
+				for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+				return buf;
+			}
+
+			saveAs(new Blob([s2ab_blob(wbout)],{type:"application/octet-stream"}), "test.xlsx")
+
+
+
 	}
 	if(out.innerText === undefined) out.textContent = output;
 	else out.innerText = output;
@@ -208,6 +241,7 @@ function process_wb(wb) {
 
 var drop = document.getElementById('drop');
 function handleDrop(e) {
+	console.log("function.handleDrop is called");
 	e.stopPropagation();
 	e.preventDefault();
 	rABS = document.getElementsByName("userabs")[0].checked;
@@ -253,6 +287,7 @@ if(drop.addEventListener) {
 
 var xlf = document.getElementById('xlf');
 function handleFile(e) {
+	console.log("function.handleFile is called");
 	rABS = document.getElementsByName("userabs")[0].checked;
 	use_worker = document.getElementsByName("useworker")[0].checked;
 	var files = e.target.files;
@@ -283,5 +318,8 @@ function handleFile(e) {
 
 if(xlf.addEventListener) xlf.addEventListener('change', handleFile, false);
 </script>
+
+<button onclick="download_xlsx()">Download</button>
+
 </body>
 </html>
