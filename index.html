@@ -37,9 +37,12 @@ Output Format:
 <textarea id="b64data">... or paste a base64-encoding here</textarea>
 <input type="button" id="dotext" value="Click here to process the base64 text" onclick="b64it();"/><br />
 Advanced Demo Options: <br />
-Use Web Workers: (when available) <input type="checkbox" name="useworker" checked><br />
+Use Web Workers: (when available) <input type="checkbox" name="useworker" unchecked><br />
 Use Transferrables: (when available) <input type="checkbox" name="xferable" checked><br />
 Use readAsBinaryString: (when available) <input type="checkbox" name="userabs" checked><br />
+
+<button onclick="download_xlsx()">Download</button>
+
 <pre id="out"></pre>
 <br />
 <!-- uncomment the next line here and in xlsxworker.js for encoding support -->
@@ -53,6 +56,7 @@ Use readAsBinaryString: (when available) <input type="checkbox" name="userabs" c
 <script type="text/javascript" src="Blob.js"></script>
 <script type="text/javascript" src="FileSaver.js"></script>
 <script>
+var wb_out;
 var X = XLSX;
 var XW = {
 	/* worker message */
@@ -131,14 +135,17 @@ function xw_xfer(data, cb) {
 			default:
 				//console.log("case: default");
 				xx=ab2str(e.data).replace(/\n/g,"\\n").replace(/\r/g,"\\r");
-				console.log("done"); cb(JSON.parse(xx));
+				console.log("function.xw_xfer done");
+				cb(JSON.parse(xx)); // process_wb is called!!
 				break;
 		}
 	};
 	if(rABS) {
+		console.log("function.xw_xfer rABS: TRUE");
 		var val = s2ab(data);
 		worker.postMessage(val[1], [val[1]]);
 	} else {
+		console.log("function.xw_xfer rABS: FALSE");
 		worker.postMessage(data, [data]);
 	}
 }
@@ -170,6 +177,7 @@ function to_json(workbook) {
 }
 
 function to_csv(workbook) {
+	console.log("function.to_csv is called"); // something goes wrong here...?
 	var result = [];
 	workbook.SheetNames.forEach(function(sheetName) {
 		var csv = X.utils.sheet_to_csv(workbook.Sheets[sheetName]);
@@ -203,9 +211,71 @@ function b64it() {
 	process_wb(wb);
 }
 
+function work_cell(worksheet, address_of_cell, val_of_cell) {
+	var w_address = address_of_cell;
+	// console.log("w_address: " + w_address);
+	var w_cell = worksheet[w_address];
+	// console.log("w_cell: " + w_cell);
+	w_cell.v = val_of_cell;
+	// console.log("w_cell.v: " + w_cell.v);
+}
+
+function kiwi_wb(workbook) {
+	/* Get worksheet */
+	var first_sheet_name = workbook.SheetNames[0];
+	var ws = workbook.Sheets[first_sheet_name];
+
+	var kiwi_row_length = ws['!ref'].substr(4);
+	console.log("kiwi_row_length: " + kiwi_row_length);
+
+	work_cell(ws, "A1", "外部订单编号"); // external order number
+	work_cell(ws, "A2", ws["A2"].v);
+
+	work_cell(ws, "B1", "商品条码"); // barcode
+	work_cell(ws, "C1", "快递公司"); // courier company
+
+	work_cell(ws, "D1", "收件人名字"); // recipient name
+	for (i=2;i<kiwi_row_length;i++) {
+		work_cell(ws, "D"+[i], ws["I"+[i]].v);
+	}
+
+	// work_cell(ws, "D2", ws["I2"].v);
+
+	work_cell(ws, "E1", "收件人身份证号"); // recipient id number
+	work_cell(ws, "F1", "收件人省"); // recipient province
+	work_cell(ws, "G1", "收件人市"); // recipient city
+	work_cell(ws, "H1", "收件人县区"); // recipient country
+	work_cell(ws, "I1", "收件人街道及门牌号"); // recipient street and house number
+	work_cell(ws, "J1", "收件人联系电话"); // recipient contact phone
+	work_cell(ws, "K1", "邮件地址"); // mail address
+	work_cell(ws, "L1", "包裹重量（KG）"); // package weight (KG)
+	work_cell(ws, "M1", "物品单价（RMB）"); // item unit price (RMB)
+	work_cell(ws, "N1", "物品数量"); // number of the stuffs
+	work_cell(ws, "O1", "支付方式"); // payment method
+	work_cell(ws, "P1", "商品名称"); // product name
+	work_cell(ws, "Q1", "订单生成时间（年-月-日 时:分:秒）"); // order generation time
+	work_cell(ws, "R1", "购买人平台ID"); // purchaser platform id
+	work_cell(ws, "S1", "RACK NUMBER"); // rack number
+	work_cell(ws, "T1", "");
+	work_cell(ws, "U1", "");
+	work_cell(ws, "V1", "");
+
+	var fsn = workbook.SheetNames[0];
+	var aoc = "E1";
+	var ws2 = workbook.Sheets[fsn];
+	var dc = ws2[aoc];
+	var dv = dc.v;
+	console.log("Check: " + dv);
+
+	return workbook;	
+}
+
 function process_wb(wb) {
 	console.log("function.process_wb is called");
 	var output = "";
+
+	wb_out = kiwi_wb(wb);
+
 	switch(get_radio_value("format")) {
 		case "json":
 			console.log("output format: json");
@@ -215,28 +285,36 @@ function process_wb(wb) {
 			output = to_formulae(wb);
 			break;
 		default:
-			console.log("output format: csv");			
-			output = to_csv(wb);
-			
+			console.log("output format: csv");
 
+			// wb_out = kiwi_wb(wb);		
 
-			var wbout = XLSX.write(wb, {bookType:'xlsx', bookSST:true, type: 'binary'});
-
-			function s2ab_blob(s) {
-				var buf = new ArrayBuffer(s.length);
-				var view = new Uint8Array(buf);
-				for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
-				return buf;
-			}
-
-			saveAs(new Blob([s2ab_blob(wbout)],{type:"application/octet-stream"}), "test.xlsx")
-
-
-
+			output = to_csv(wb_out);
 	}
-	if(out.innerText === undefined) out.textContent = output;
-	else out.innerText = output;
-	if(typeof console !== 'undefined') console.log("output", new Date());
+	if (out.innerText === undefined) {
+		console.log("out.textContent:");
+		out.textContent = output;
+	} else {
+		console.log("out.innerText:");
+		out.innerText = output;
+	} 
+	if (typeof console !== 'undefined') {
+		console.log("output", new Date());
+	} 
+}
+
+function download_xlsx() {
+
+	var wbout = XLSX.write(wb_out, {bookType:'xlsx', bookSST:true, type: 'binary'});
+
+	function s2ab_blob(s) {
+		var buf = new ArrayBuffer(s.length);
+		var view = new Uint8Array(buf);
+		for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+		return buf;
+	}
+
+	saveAs(new Blob([s2ab_blob(wbout)],{type:"application/octet-stream"}), "test.xlsx")
 }
 
 var drop = document.getElementById('drop');
@@ -299,13 +377,17 @@ function handleFile(e) {
 			if(typeof console !== 'undefined') console.log("onload", new Date(), rABS, use_worker);
 			var data = e.target.result;
 			if(use_worker) {
+				console.log("use_worker: TRUE");
 				xw(data, process_wb);
 			} else {
+				console.log("use_worker: FALSE");
 				var wb;
 				if(rABS) {
-					wb = X.read(data, {type: 'binary'});
+					console.log("function.handleFile rABS: TRUE");
+					wb = X.read(data, {type: 'binary', sheetStubs: 'false'});
 				} else {
-				var arr = fixdata(data);
+					console.log("function.handleFile rABS: FALSE");
+					var arr = fixdata(data);
 					wb = X.read(btoa(arr), {type: 'base64'});
 				}
 				process_wb(wb);
@@ -318,8 +400,5 @@ function handleFile(e) {
 
 if(xlf.addEventListener) xlf.addEventListener('change', handleFile, false);
 </script>
-
-<button onclick="download_xlsx()">Download</button>
-
 </body>
 </html>
