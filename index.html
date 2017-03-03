@@ -22,11 +22,14 @@
 </head>
 <body>
 <b>JS-XLSX (XLSX/XLSB/XLSM/XLS/XML/ODS) Live Demo</b><br />
-Output Format:
+Input Format:
 <select name="format">
-<option value="csv" selected> CSV</option>
-<option value="json"> JSON</option>
-<option value="form"> FORMULAE</option>
+<option value="cmate" selected> C-MATE</option>
+<option value="beauty"> 美俏</option>
+<option value="get"> GET</option>
+<option value="darling"> 达令</option>
+<option value="childking"> 孩子王</option>
+
 </select><br />
 <!--<input type="radio" name="format" value="csv" checked> CSV<br>
 <input type="radio" name="format" value="json"> JSON<br>
@@ -55,6 +58,8 @@ Use readAsBinaryString: (when available) <input type="checkbox" name="userabs" c
 <!-- write xlsx -->
 <script type="text/javascript" src="Blob.js"></script>
 <script type="text/javascript" src="FileSaver.js"></script>
+<!-- kiwi -->
+<script src="kiwi.js"></script>
 <script>
 var wb_out;
 var X = XLSX;
@@ -225,100 +230,16 @@ function work_cell(worksheet, address, value) {
 	w_cell.v = value;
 }
 
+/* NOT USED */
 function format_text_cell(worksheet, address, value) {
 	var f_address = address;
 	var f_cell = worksheet[f_address];
 	f_cell.w = value;
 }
 
-function kiwi_wb(workbook) {
-	/* Get worksheet */
-	var first_sheet_name = workbook.SheetNames[0];
-	var ws = workbook.Sheets[first_sheet_name];
-	/* Copy worksheet */
-	var ws_origin = ws;
-
-	var kiwi_row_length = ws['!ref'].substr(4);
-	console.log("kiwi_row_length: " + kiwi_row_length);
-
-	work_cell(ws, "A1", "外部订单编号"); // external order number
-	work_cell(ws, "B1", "商品条码"); // barcode
-	work_cell(ws, "C1", "快递公司"); // courier company
-	work_cell(ws, "D1", "收件人名字"); // recipient name
-	work_cell(ws, "E1", "收件人身份证号"); // recipient id number
-	work_cell(ws, "F1", "收件人省"); // recipient province
-	work_cell(ws, "G1", "收件人市"); // recipient city
-	work_cell(ws, "H1", "收件人县区"); // recipient country
-	work_cell(ws, "I1", "收件人街道及门牌号"); // recipient street and house number
-	work_cell(ws, "J1", "收件人联系电话"); // recipient contact phone
-	work_cell(ws, "K1", "邮件地址"); // mail address
-	work_cell(ws, "L1", "包裹重量（KG）"); // package weight (KG)
-	work_cell(ws, "M1", "物品单价（RMB）"); // item unit price (RMB)
-	work_cell(ws, "N1", "物品数量"); // number of the stuffs
-	work_cell(ws, "O1", "支付方式"); // payment method
-	work_cell(ws, "P1", "商品名称"); // product name
-	work_cell(ws, "Q1", "订单生成时间（年-月-日 时:分:秒）"); // order generation time
-	work_cell(ws, "R1", "购买人平台ID"); // purchaser platform id
-	work_cell(ws, "S1", "RACK NUMBER"); // rack number
-	work_cell(ws, "T1", "");
-	work_cell(ws, "U1", "");
-	work_cell(ws, "V1", "");
-
-	for(i=2;i<=kiwi_row_length;i++){
-		/* external order number : order number(A1) OR original order number(E1) */
-		work_cell(ws, "A"+[i], ws_origin["A"+[i]].w);
-		/* barcode : WIP */
-		work_cell(ws, "B"+[i], "BARCODE");
-		/* courier company : logistics companies(O1) */
-		work_cell(ws, "C"+[i], ws_origin["O"+[i]].w);
-		/* recipient name : recipient(I1) */
-		work_cell(ws, "D"+[i], ws_origin["I"+[i]].w);
-		/* recipient id number : WIP */
-		work_cell(ws, "E"+[i], "RECIPIENT_ID_NUMBER"); 		
-		/* recipient province : provincial cities and counties(J1) */
-		var string = ws_origin["J"+[i]].w;
-		var strArray = string.split(" ");
-		work_cell(ws, "F"+[i], strArray[0]);
-		/* recipient city : WIP */
-		work_cell(ws, "G"+[i], strArray[1]);
-		/* recipient country : WIP */
-		work_cell(ws, "H"+[i], strArray[2]);
-		/* recipient recipient street and house number : address(K1) */
-		work_cell(ws, "I"+[i], ws_origin["K"+[i]].w);
-		/* recipient contact phone : phone(M1) */
-		work_cell(ws, "J"+[i], ws_origin["M"+[i]].w);
-		/* mail address : zip code(N1) */
-		work_cell(ws, "K"+[i], ws_origin["N"+[i]].w);
-		/* package weight (KG) : WIP */
-		work_cell(ws, "L"+[i], "");
-		/* item unit price (RMB) : price(S1) */
-		work_cell(ws, "M"+[i], ws_origin["S"+[i]].w);
-		/* number of the stuffs : real quantity(U1) */
-		work_cell(ws, "N"+[i], ws_origin["U"+[i]].w);
-		/* payment method : WIP */
-		work_cell(ws, "O"+[i], "");
-		/* product name : platform product name(R1) */
-		work_cell(ws, "P"+[i], ws_origin["R"+[i]].w);
-		/* order generation time : transaction time(F1) */
-		work_cell(ws, "Q"+[i], ws_origin["F"+[i]].w);
-		/* purchaser platform id : business code(Q1) */
-		work_cell(ws, "R"+[i], ws_origin["Q"+[i]].w);
-		/* rack number : shipment number(P1) */
-		work_cell(ws, "S"+[i], ws_origin["P"+[i]].w);
-		/* empty cells */
-		work_cell(ws, "T"+[i], "");
-		work_cell(ws, "U"+[i], "");
-		work_cell(ws, "V"+[i], "");
-	}	
-
-	return workbook;	
-}
-
 function process_wb(wb) {
 	console.log("function.process_wb is called");
 	var output = "";
-
-	wb_out = kiwi_wb(wb);
 
 	switch(get_radio_value("format")) {
 		case "json":
@@ -329,9 +250,9 @@ function process_wb(wb) {
 			output = to_formulae(wb);
 			break;
 		default:
-			console.log("output format: csv");
+			console.log("input format: cmate");
 
-			// wb_out = kiwi_wb(wb);		
+			wb_out = convert_cmate(wb);		
 
 			output = to_csv(wb_out);
 	}
