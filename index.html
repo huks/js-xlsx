@@ -26,9 +26,10 @@ Input Format:
 <select name="format">
 <option value="cmate" selected> C-MATE</option>
 <option value="beauty"> 美俏</option>
-<option value="get"> GET</option>
+<option value="the_get"> GET</option>
 <option value="darling"> 达令</option>
 <option value="childking"> 孩子王</option>
+<option value="json"> JSON</option>
 
 </select><br />
 <!--<input type="radio" name="format" value="csv" checked> CSV<br>
@@ -216,27 +217,6 @@ function b64it() {
 	process_wb(wb);
 }
 
-function work_cell(worksheet, address, value) {
-	/*
-	 * v: raw value
-	 * w: formatted text (if applicable)
-	 * 
-	 * Built-in export utilities (such as the CSV exporter) will use the w text if it is available.
-	 * To change a value, be sure to delete cell.w (or set it to undefined) before attempting to export.
-	 * The utilities will regenerate the w text from the number format (cell.z) and the raw value if possible.
-	 */
-	var w_address = address;
-	var w_cell = worksheet[w_address];
-	w_cell.v = value;
-}
-
-/* NOT USED */
-function format_text_cell(worksheet, address, value) {
-	var f_address = address;
-	var f_cell = worksheet[f_address];
-	f_cell.w = value;
-}
-
 function process_wb(wb) {
 	console.log("function.process_wb is called");
 	var output = "";
@@ -249,11 +229,13 @@ function process_wb(wb) {
 		case "form":
 			output = to_formulae(wb);
 			break;
+		case "the_get":
+			console.log("input format: the_get");
+			wb_out = convert_the_get(wb);
+			output = to_csv(wb_out);
 		default:
 			console.log("input format: cmate");
-
 			wb_out = convert_cmate(wb);		
-
 			output = to_csv(wb_out);
 	}
 	if (out.innerText === undefined) {
