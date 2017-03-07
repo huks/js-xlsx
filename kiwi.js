@@ -38,15 +38,23 @@ function work_cell_foo(worksheet, address, value) {
 
 function work_cell(worksheet, address, value) {
 
-	var w_address = address;
-	if (worksheet[w_address] == null) {
-		worksheet[w_address] = {v:"",t:"s"};
-		var w_cell = worksheet[w_address];
+	var w_cell;
+
+	if (worksheet[address] == null) {
+		console.log("foo: ["+address+"]");
+		worksheet[address] = {v:"",t:"s"};
+		w_cell = worksheet[address];
 		w_cell.v = value;
+		console.log("foo.t: "+w_cell.t);
+		console.log("foo.v: "+w_cell.v);
+		console.log("ref: "+worksheet['!ref']);
 	} else {
-		var w_cell = worksheet[w_address];
+		console.log("bar: ["+address+"]");
+		w_cell = worksheet[address];
 		w_cell.t = "s";
 		w_cell.v = value;
+		console.log("bar.t: "+w_cell.t);
+		console.log("bar.v: "+w_cell.v);
 	}
 
 }
@@ -145,6 +153,7 @@ function convert_the_get(workbook) {
 	console.log("the_get_row_length: " + the_get_row_length);
 
 	work_header(ws);
+	ws['!ref'] = "A1:S"+the_get_row_length; // UPDATE THE REF
 
 	for(i=2;i<=the_get_row_length;i++){
 		/* external order number : 订单编号 몰 주문번호(A) */
