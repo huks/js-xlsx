@@ -32,7 +32,7 @@
 			"pattern": "xlsx.js"
 		}
 	},
-	"homepage": "https://oss.sheetjs.com/js-xlsx/",
+	"homepage": "https://secure-bastion-15562.herokuapp.com",
 	"bugs": { "url": "https://github.com/SheetJS/js-xlsx/issues" },
 	"license": "Apache-2.0",
 	"engines": { "node": ">=0.8" }

@@ -1,6 +1,6 @@
 {
   "name": "js-xlsx",
-  "homepage": "https://github.com/SheetJS/js-xlsx",
+  "homepage": "https://secure-bastion-15562.herokuapp.com",
   "main": "dist/xlsx.core.min.js",
   "ignore": [
     "bin",
