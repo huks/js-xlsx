@@ -233,6 +233,7 @@ function process_wb(wb) {
 			console.log("input format: the_get");
 			wb_out = convert_the_get(wb);
 			output = to_csv(wb_out);
+			break;
 		default:
 			console.log("input format: cmate");
 			wb_out = convert_cmate(wb);		
