@@ -41,21 +41,18 @@ function work_cell(worksheet, address, value) {
 	var w_cell;
 
 	if (worksheet[address] == null) {
-		console.log("foo: ["+address+"]");
-		worksheet[address] = {v:"",t:"s"};
+		worksheet[address] = {t:"s",v:"",w:""};
 		w_cell = worksheet[address];
 		w_cell.v = value;
-		console.log("foo.t: "+w_cell.t);
-		console.log("foo.v: "+w_cell.v);
-		console.log("ref: "+worksheet['!ref']);
+		w_cell.w = value;
 	} else {
-		console.log("bar: ["+address+"]");
 		w_cell = worksheet[address];
 		w_cell.t = "s";
 		w_cell.v = value;
-		console.log("bar.t: "+w_cell.t);
-		console.log("bar.v: "+w_cell.v);
+		w_cell.w = value;
 	}
+
+	//console.log("["+address+"]: "+JSON.stringify(w_cell));
 
 }
 
@@ -63,16 +60,21 @@ function convert_cmate(workbook) {
 	/* Get worksheet */
 	var first_sheet_name = workbook.SheetNames[0];
 	var ws = workbook.Sheets[first_sheet_name];
-	/* Copy worksheet */
-	var ws_origin = ws;
+	/*
+	 * Copy worksheet:
+	 * The = operator does not make a copy of the data.
+	 * It creates a new reference to the same data.
+	 */
+	var ws_origin = JSON.parse(JSON.stringify(ws));
 
 	var cmate_row_length = ws['!ref'].substr(4);
 	console.log("cmate_row_length: " + cmate_row_length);
 
 	work_header(ws);
-	work_cell(ws, "T1", "");
-	work_cell(ws, "U1", "");
-	work_cell(ws, "V1", "");
+	//work_cell(ws, "T1", "");
+	//work_cell(ws, "U1", "");
+	//work_cell(ws, "V1", "");
+	ws['!ref'] = "A1:S"+cmate_row_length; // UPDATE THE REF
 
 	for(i=2;i<=cmate_row_length;i++){
 		/* external order number : order number(A) */
@@ -135,9 +137,9 @@ function convert_cmate(workbook) {
 		work_cell(ws, "S"+[i], ws_origin["P"+[i]].w);
 
 		/* empty cells */
-		work_cell(ws, "T"+[i], "");
-		work_cell(ws, "U"+[i], "");
-		work_cell(ws, "V"+[i], "");
+		//work_cell(ws, "T"+[i], "");
+		//work_cell(ws, "U"+[i], "");
+		//work_cell(ws, "V"+[i], "");
 	}	
 	return workbook;	
 }
@@ -147,7 +149,7 @@ function convert_the_get(workbook) {
 	var first_sheet_name = workbook.SheetNames[0];
 	var ws = workbook.Sheets[first_sheet_name];
 	/* Copy worksheet */
-	var ws_origin = ws;
+	var ws_origin = JSON.parse(JSON.stringify(ws));
 
 	var the_get_row_length = ws['!ref'].substr(4);
 	console.log("the_get_row_length: " + the_get_row_length);
