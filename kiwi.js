@@ -21,21 +21,6 @@ function work_header(ws) {
 	work_cell(ws, "S1", "RACK NUMBER"); // rack number
 }
 
-/* NOT USED */
-function work_cell_foo(worksheet, address, value) {
-	/*
-	 * v: raw value
-	 * w: formatted text (if applicable)
-	 * 
-	 * Built-in export utilities (such as the CSV exporter) will use the w text if it is available.
-	 * To change a value, be sure to delete cell.w (or set it to undefined) before attempting to export.
-	 * The utilities will regenerate the w text from the number format (cell.z) and the raw value if possible.
-	 */
-	var w_address = address;
-	var w_cell = worksheet[w_address];
-	w_cell.v = value;
-}
-
 function work_cell(worksheet, address, value) {
 
 	var w_cell;

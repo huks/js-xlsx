@@ -29,7 +29,6 @@ Input Format:
 <option value="the_get"> GET</option>
 <option value="darling"> 达令</option>
 <option value="childking"> 孩子王</option>
-<option value="json"> JSON</option>
 
 </select><br />
 <!--<input type="radio" name="format" value="csv" checked> CSV<br>
@@ -41,7 +40,7 @@ Input Format:
 <textarea id="b64data">... or paste a base64-encoding here</textarea>
 <input type="button" id="dotext" value="Click here to process the base64 text" onclick="b64it();"/><br />
 Advanced Demo Options: <br />
-Use Web Workers: (when available) <input type="checkbox" name="useworker" unchecked><br />
+Use Web Workers: (when available) <input type="checkbox" name="useworker" checked><br />
 Use Transferrables: (when available) <input type="checkbox" name="xferable" checked><br />
 Use readAsBinaryString: (when available) <input type="checkbox" name="userabs" checked><br />
 
@@ -222,22 +221,15 @@ function process_wb(wb) {
 	var output = "";
 
 	switch(get_radio_value("format")) {
-		case "json":
-			console.log("output format: json");
-			output = JSON.stringify(to_json(wb), 2, 2);
-			break;
-		case "form":
-			output = to_formulae(wb);
-			break;
 		case "the_get":
 			console.log("input format: the_get");
 			wb_out = convert_the_get(wb);
-			output = to_csv(wb_out);
+			output = JSON.stringify(to_json(wb_out), 2, 2);
 			break;
 		default:
 			console.log("input format: cmate");
 			wb_out = convert_cmate(wb);		
-			output = to_csv(wb_out);
+			output = JSON.stringify(to_json(wb_out), 2, 2);
 	}
 	if (out.innerText === undefined) {
 		console.log("out.textContent:");
