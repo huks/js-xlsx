@@ -21,33 +21,45 @@
 </style>
 </head>
 <body>
-<b>JS-XLSX (XLSX/XLSB/XLSM/XLS/XML/ODS) Live Demo</b><br />
-Input Format:
+<b>XLSX Coverter Demo (works in Firefox only!!)</b><br />
+
+<p>1. Select the Format:
 <select name="format">
 <option value="cmate" selected> C-MATE</option>
 <option value="beauty"> 美俏</option>
 <option value="the_get"> GET</option>
 <option value="darling"> 达令</option>
 <option value="childking"> 孩子王</option>
+</select>
+</p>
 
-</select><br />
+<p>2. Select a XLSX file to convert:&nbsp;<input type="file" name="xlfile" id="xlf" /></p>
+
+<p>3. Click to download:&nbsp;<button onclick="download_xlsx()">Download</button></p>
+
+<hr/>
+
+<p>DATA converted:</p>
+<pre id="out"></pre>
+
 <!--<input type="radio" name="format" value="csv" checked> CSV<br>
 <input type="radio" name="format" value="json"> JSON<br>
 <input type="radio" name="format" value="form"> FORMULAE<br> -->
 
-<div id="drop">Drop an XLSX / XLSM / XLSB / ODS / XLS / XML file here to see sheet data</div>
-<p><input type="file" name="xlfile" id="xlf" /> ... or click here to select a file</p>
-<textarea id="b64data">... or paste a base64-encoding here</textarea>
-<input type="button" id="dotext" value="Click here to process the base64 text" onclick="b64it();"/><br />
-Advanced Demo Options: <br />
+<!--<div id="drop">Drop an XLSX / XLSM / XLSB / ODS / XLS / XML file here to see sheet data</div>-->
+
+<!--<textarea id="b64data">... or paste a base64-encoding here</textarea>
+<input type="button" id="dotext" value="Click here to process the base64 text" onclick="b64it();"/><br />-->
+<div style="display:none">
+<input type="checkbox" name="useworker" checked>
+<input type="checkbox" name="xferable" checked>
+<input type="checkbox" name="userabs" checked>
+</div>
+<!--Advanced Demo Options: <br />
 Use Web Workers: (when available) <input type="checkbox" name="useworker" checked><br />
 Use Transferrables: (when available) <input type="checkbox" name="xferable" checked><br />
-Use readAsBinaryString: (when available) <input type="checkbox" name="userabs" checked><br />
+Use readAsBinaryString: (when available) <input type="checkbox" name="userabs" checked><br />-->
 
-<button onclick="download_xlsx()">Download</button>
-
-<pre id="out"></pre>
-<br />
 <!-- uncomment the next line here and in xlsxworker.js for encoding support -->
 <!--<script src="dist/cpexcel.js"></script>-->
 <script src="shim.js"></script>
@@ -222,17 +234,17 @@ function process_wb(wb) {
 
 	switch(get_radio_value("format")) {
 		case "the_get":
-			console.log("input format: the_get");
+			console.log("format: the_get");
 			wb_out = convert_the_get(wb);
 			output = JSON.stringify(to_json(wb_out), 2, 2);
 			break;
 		case "childking":
-			console.log("input format: childking");
+			console.log("format: childking");
 			wb_out = convert_childking(wb);
 			output = JSON.stringify(to_json(wb_out), 2, 2);
 			break;
 		default:
-			console.log("input format: cmate");
+			console.log("format: cmate");
 			wb_out = convert_cmate(wb);		
 			output = JSON.stringify(to_json(wb_out), 2, 2);
 	}
@@ -301,11 +313,11 @@ function handleDragover(e) {
 	e.dataTransfer.dropEffect = 'copy';
 }
 
-if(drop.addEventListener) {
-	drop.addEventListener('dragenter', handleDragover, false);
-	drop.addEventListener('dragover', handleDragover, false);
-	drop.addEventListener('drop', handleDrop, false);
-}
+// if(drop.addEventListener) {
+// 	drop.addEventListener('dragenter', handleDragover, false);
+// 	drop.addEventListener('dragover', handleDragover, false);
+// 	drop.addEventListener('drop', handleDrop, false);
+// }
 
 
 var xlf = document.getElementById('xlf');
