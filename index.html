@@ -74,6 +74,8 @@ Use readAsBinaryString: (when available) <input type="checkbox" name="userabs" c
 <script src="kiwi.js"></script>
 <script>
 var wb_out;
+var fn_out;
+
 var X = XLSX;
 var XW = {
 	/* worker message */
@@ -271,7 +273,9 @@ function download_xlsx() {
 		return buf;
 	}
 
-	saveAs(new Blob([s2ab_blob(wbout)],{type:"application/octet-stream"}), "test.xlsx")
+	var fooFileName = "converted." + fn_out;
+
+	saveAs(new Blob([s2ab_blob(wbout)],{type:"application/octet-stream"}), fooFileName)
 }
 
 var drop = document.getElementById('drop');
@@ -330,6 +334,7 @@ function handleFile(e) {
 	{
 		var reader = new FileReader();
 		var name = f.name;
+		fn_out = name; // file name for download!!
 		reader.onload = function(e) {
 			if(typeof console !== 'undefined') console.log("onload", new Date(), rABS, use_worker);
 			var data = e.target.result;
