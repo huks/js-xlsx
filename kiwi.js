@@ -226,7 +226,7 @@ function convert_childking(workbook) {
 	var ws_origin = JSON.parse(JSON.stringify(ws));
 
 	var childking_row_length = ws['!ref'].substr(4);
-	console.log("childking_row_length: " + childking_row_length);
+	// console.log("childking_row_length: " + childking_row_length);
 
 	work_header(ws);
 	ws['!ref'] = "A1:S"+childking_row_length;
@@ -235,8 +235,14 @@ function convert_childking(workbook) {
 	var jsonChildking;
 	loadJSON("db/childking.json", function(response) {
 		jsonChildking = JSON.parse(response);
-		console.log("jsonChildking: " + JSON.stringify(jsonChildking));
+		// console.log("jsonChildking: " + JSON.stringify(jsonChildking));
 	});
+
+	function getPriceByBarcode(barcode) {
+		return jsonChildking.filter(function(jsonChildking){
+			return jsonChildking.barcode == barcode
+		});
+	}
 
 	for(i=2;i<=childking_row_length;i++){
 		/* external order number : merchant order(A) */
@@ -275,9 +281,13 @@ function convert_childking(workbook) {
 		/* package weight (KG) : single weight(S) */
 		work_cell(ws, "L"+[i], ws_origin["S"+[i]].w);
 
-		/* item unit price (RMB) : unit price(U) */
-		var fooPrice = jsonChildking[0].price;
-		work_cell(ws, "M"+[i], fooPrice);
+		/* item unit price (RMB) : unit price(U) */		
+		try {
+			var fooPrice = getPriceByBarcode(ws_origin["N"+[i]].w)
+			work_cell(ws, "M"+[i], fooPrice[0].price);
+		} catch (e) {
+			work_cell(ws, "M"+[i], "undefined");
+		}
 
 		/* number of the stuffs : quantity(T) */
 		work_cell(ws, "N"+[i], ws_origin["T"+[i]].w);
