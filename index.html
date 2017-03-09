@@ -226,6 +226,11 @@ function process_wb(wb) {
 			wb_out = convert_the_get(wb);
 			output = JSON.stringify(to_json(wb_out), 2, 2);
 			break;
+		case "childking":
+			console.log("input format: childking");
+			wb_out = convert_childking(wb);
+			output = JSON.stringify(to_json(wb_out), 2, 2);
+			break;
 		default:
 			console.log("input format: cmate");
 			wb_out = convert_cmate(wb);		

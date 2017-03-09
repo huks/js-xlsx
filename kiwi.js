@@ -1,3 +1,16 @@
+function loadJSON(path, callback) {
+	var xobj = new XMLHttpRequest();
+	xobj.overrideMimeType("application/json");
+	xobj.open('GET', path, false); // This is not actually recommended, as it has to wait for the 'server' response.
+	xobj.onreadystatechange = function () {
+		if (xobj.readyState == 4 && xobj.status == "200") {
+			// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+			callback(xobj.responseText);
+		}
+	};
+	xobj.send(null);  
+}
+
 function work_header(ws) {
 	console.log("function.work_header is called");
 	work_cell(ws, "A1", "外部订单编号"); // external order number	
@@ -75,7 +88,7 @@ function convert_cmate(workbook) {
 		work_cell(ws, "D"+[i], ws_origin["I"+[i]].w);
 
 		/* recipient id number : WIP */
-		work_cell(ws, "E"+[i], "RECIPIENT_ID_NUMBER"); 		
+		work_cell(ws, "E"+[i], "");
 
 		/* recipient province : provincial cities and counties(J) */
 		var string = ws_origin["J"+[i]].w;
@@ -140,7 +153,7 @@ function convert_the_get(workbook) {
 	console.log("the_get_row_length: " + the_get_row_length);
 
 	work_header(ws);
-	ws['!ref'] = "A1:S"+the_get_row_length; // UPDATE THE REF
+	ws['!ref'] = "A1:S"+the_get_row_length;
 
 	for(i=2;i<=the_get_row_length;i++){
 		/* external order number : 订单编号 몰 주문번호(A) */
@@ -150,7 +163,7 @@ function convert_the_get(workbook) {
 		work_cell(ws, "B"+[i], "BARCODE");
 
 		/* courier company : WIP */
-		work_cell(ws, "C"+[i], "COURIER_COMPANY");
+		work_cell(ws, "C"+[i], "");
 
 		/* recipient name : 收货人姓名 수화인성명(G) */
 		work_cell(ws, "D"+[i], ws_origin["G"+[i]].w);
@@ -199,6 +212,90 @@ function convert_the_get(workbook) {
 
 		/* rack number : 윈다 송장번호(C) */
 		work_cell(ws, "S"+[i], ws_origin["C"+[i]].w);
+
+		/* empty cells */
+	}	
+	return workbook;	
+}
+
+function convert_childking(workbook) {
+	/* Get worksheet */
+	var first_sheet_name = workbook.SheetNames[0];
+	var ws = workbook.Sheets[first_sheet_name];
+	/* Copy worksheet */
+	var ws_origin = JSON.parse(JSON.stringify(ws));
+
+	var childking_row_length = ws['!ref'].substr(4);
+	console.log("childking_row_length: " + childking_row_length);
+
+	work_header(ws);
+	ws['!ref'] = "A1:S"+childking_row_length;
+
+	/* JSON */
+	var jsonChildking;
+	loadJSON("db/childking.json", function(response) {
+		jsonChildking = JSON.parse(response);
+		console.log("jsonChildking: " + JSON.stringify(jsonChildking));
+	});
+
+	for(i=2;i<=childking_row_length;i++){
+		/* external order number : merchant order(A) */
+		work_cell(ws, "A"+[i], ws_origin["A"+[i]].w);
+
+		/* barcode : commodity code(N) */
+		work_cell(ws, "B"+[i], ws_origin["N"+[i]].w);
+
+		/* courier company : WIP */
+		work_cell(ws, "C"+[i], "");
+
+		/* recipient name : recipient(C) */
+		work_cell(ws, "D"+[i], ws_origin["C"+[i]].w);
+
+		/* recipient id number : id number(D) */
+		work_cell(ws, "E"+[i], ws_origin["D"+[i]].w); 		
+
+		/* recipient province : recipient province(E) */
+		work_cell(ws, "F"+[i], ws_origin["E"+[i]].w);
+
+		/* recipient city : recipient city(F) */
+		work_cell(ws, "G"+[i], ws_origin["F"+[i]].w);
+
+		/* recipient country : recipient area(G) */
+		work_cell(ws, "H"+[i], ws_origin["G"+[i]].w);
+
+		/* recipient recipient street and house number : shipping address(H) */
+		work_cell(ws, "I"+[i], ws_origin["H"+[i]].w);
+
+		/* recipient contact phone : recipient phone(J) */
+		work_cell(ws, "J"+[i], ws_origin["J"+[i]].w);
+
+		/* mail address : WIP */
+		work_cell(ws, "K"+[i], "");
+
+		/* package weight (KG) : single weight(S) */
+		work_cell(ws, "L"+[i], ws_origin["S"+[i]].w);
+
+		/* item unit price (RMB) : unit price(U) */
+		var fooPrice = jsonChildking[0].price;
+		work_cell(ws, "M"+[i], fooPrice);
+
+		/* number of the stuffs : quantity(T) */
+		work_cell(ws, "N"+[i], ws_origin["T"+[i]].w);
+
+		/* payment method : WIP */
+		work_cell(ws, "O"+[i], "");
+
+		/* product name : name(P) */
+		work_cell(ws, "P"+[i], ws_origin["P"+[i]].w);
+
+		/* order generation time : WIP */
+		work_cell(ws, "Q"+[i], "");
+
+		/* purchaser platform id : WIP */
+		work_cell(ws, "R"+[i], "");
+
+		/* rack number : waybill number(B) */
+		work_cell(ws, "S"+[i], ws_origin["B"+[i]].w);
 
 		/* empty cells */
 	}	
