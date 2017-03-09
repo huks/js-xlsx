@@ -264,7 +264,7 @@ function process_wb(wb) {
 
 function download_xlsx() {
 
-	var wbout = XLSX.write(wb_out, {bookType:'xlsx', bookSST:true, type: 'binary'});
+	var xout = XLSX.write(wb_out, {bookType:'xlsx', bookSST:true, type: 'binary'});
 
 	function s2ab_blob(s) {
 		var buf = new ArrayBuffer(s.length);
@@ -275,7 +275,7 @@ function download_xlsx() {
 
 	var fooFileName = "converted." + fn_out;
 
-	saveAs(new Blob([s2ab_blob(wbout)],{type:"application/octet-stream"}), fooFileName)
+	saveAs(new Blob([s2ab_blob(xout)],{type:"application/octet-stream"}), fooFileName)
 }
 
 var drop = document.getElementById('drop');
