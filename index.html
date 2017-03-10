@@ -73,7 +73,9 @@ Use readAsBinaryString: (when available) <input type="checkbox" name="userabs" c
 <!-- kiwi -->
 <script src="kiwi/foo.js"></script>
 <script src="kiwi/cmate.js"></script>
+<script src="kiwi/beauty.js"></script>
 <script src="kiwi/the_get.js"></script>
+<script src="kiwi/darling.js"></script>
 <script src="kiwi/childking.js"></script>
 <script>
 var wb_out;
@@ -149,15 +151,15 @@ function xw_xfer(data, cb) {
 	worker.onmessage = function(e) {
 		switch(e.data.t) {
 			case 'ready':
-				//console.log("case: ready");
+				// console.log("case: ready");
 				break;
 			case 'e':
 				console.error(e.data.d);
 				break;
 			default:
-				//console.log("case: default");
+				// console.log("case: default");
 				xx=ab2str(e.data).replace(/\n/g,"\\n").replace(/\r/g,"\\r");
-				console.log("function.xw_xfer done");
+				// console.log("function.xw_xfer done");
 				cb(JSON.parse(xx)); // process_wb is called!!
 				break;
 		}
@@ -238,9 +240,19 @@ function process_wb(wb) {
 	var output = "";
 
 	switch(get_radio_value("format")) {
+		case "beauty":
+			console.log("format: beauty");
+			wb_out = convert_beauty(wb);
+			output = JSON.stringify(to_json(wb_out), 2, 2);
+			break;
 		case "the_get":
 			console.log("format: the_get");
 			wb_out = convert_the_get(wb);
+			output = JSON.stringify(to_json(wb_out), 2, 2);
+			break;
+		case "darling":
+			console.log("format: darling");
+			wb_out = convert_darling(wb);
 			output = JSON.stringify(to_json(wb_out), 2, 2);
 			break;
 		case "childking":

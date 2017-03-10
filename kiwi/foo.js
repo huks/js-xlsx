@@ -1,3 +1,12 @@
+var NO_DATA = "n/a";
+
+function getPriceByBarcode(json, barcode) {
+	// console.log("fooJson: " + JSON.stringify(json));
+	return json.filter(function(json){
+		return json.barcode == barcode
+	});
+}
+
 function loadJSON(path, callback) {
 	var xobj = new XMLHttpRequest();
 	xobj.overrideMimeType("application/json");
@@ -12,7 +21,7 @@ function loadJSON(path, callback) {
 }
 
 function work_header(ws) {
-	console.log("function.work_header is called");
+	// console.log("function.work_header is called");
 	work_cell(ws, "A1", "外部订单编号"); // external order number	
 	work_cell(ws, "B1", "商品条码"); // barcode
 	work_cell(ws, "C1", "快递公司"); // courier company
@@ -20,7 +29,7 @@ function work_header(ws) {
 	work_cell(ws, "E1", "收件人身份证号"); // recipient id number
 	work_cell(ws, "F1", "收件人省"); // recipient province
 	work_cell(ws, "G1", "收件人市"); // recipient city
-	work_cell(ws, "H1", "收件人县区"); // recipient country
+	work_cell(ws, "H1", "收件人县区"); // recipient county
 	work_cell(ws, "I1", "收件人街道及门牌号"); // recipient street and house number
 	work_cell(ws, "J1", "收件人联系电话"); // recipient contact phone
 	work_cell(ws, "K1", "邮件地址"); // mail address	
@@ -50,6 +59,6 @@ function work_cell(worksheet, address, value) {
 		w_cell.w = value;
 	}
 
-	//console.log("["+address+"]: "+JSON.stringify(w_cell));
+	// console.log("["+address+"]: "+JSON.stringify(w_cell));
 
 }
