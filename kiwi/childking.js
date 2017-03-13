@@ -39,7 +39,7 @@ function convert_childking(workbook) {
 		/* recipient city : recipient city(F) */
 		work_cell(ws, "G"+[i], ws_origin["F"+[i]].w);
 
-		/* recipient country : recipient area(G) */
+		/* recipient county : recipient area(G) */
 		work_cell(ws, "H"+[i], ws_origin["G"+[i]].w);
 
 		/* recipient street and house number : shipping address(H) */

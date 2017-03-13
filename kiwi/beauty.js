@@ -39,7 +39,7 @@ function convert_beauty(workbook) {
 		/* recipient city : WIP */
 		work_cell(ws, "G"+[i], NO_DATA);
 
-		/* recipient country : WIP */
+		/* recipient county : WIP */
 		work_cell(ws, "H"+[i], NO_DATA);
 
 		/* recipient street and house number : recipient address(D) */

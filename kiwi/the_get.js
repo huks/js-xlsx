@@ -36,7 +36,7 @@ function convert_the_get(workbook) {
 		/* recipient city : strArray[1] */
 		work_cell(ws, "G"+[i], strArray[1]);
 
-		/* recipient country : strArray[2] */
+		/* recipient county : strArray[2] */
 		work_cell(ws, "H"+[i], strArray[2]);
 
 		/* recipient street and house number : restAddr */

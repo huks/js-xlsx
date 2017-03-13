@@ -47,12 +47,26 @@ function convert_cmate(workbook) {
 		/* recipient province : provincial cities and counties(J) */
 		var string = ws_origin["J"+[i]].w;
 		var strArray = string.split(" ");
+		var strProvince = strArray[0];
+		var isProvince = strProvince.substring(strProvince.length-1, strProvince.length);
+		if (isProvince != "省") {
+			// console.log(i + ": " + strProvince + " may not be province");
+		}
 		work_cell(ws, "F"+[i], strArray[0]);
 
 		/* recipient city : strArray[1] */
 		work_cell(ws, "G"+[i], strArray[1]);
 
-		/* recipient country : strArray[2] */
+		/* recipient county : strArray[2] */
+		var strCounty = strArray[2];
+		try {
+			var isCounty = strCounty.substring(strCounty.length-1, strCounty.length);
+			if (isCounty != "区" && isCountry == "省") {
+				console.log(i + ": " + strCounty + " may not be country");
+			}
+		} catch (e) {
+			// error
+		}		
 		work_cell(ws, "H"+[i], strArray[2]);
 
 		/* recipient street and house number : address(K) */
