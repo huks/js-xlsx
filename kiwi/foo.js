@@ -1,5 +1,20 @@
 var NO_DATA = "n/a";
 
+function htmlOut(data) {
+	var output = JSON.stringify(to_json(data), 2, 2);
+
+	if (out.innerText === undefined) {
+		console.log("out.textContent:");
+		out.textContent = output;
+	} else {
+		console.log("out.innerText:");
+		out.innerText = output;
+	} 
+	if (typeof console !== 'undefined') {
+		console.log("output", new Date());
+	} 
+}
+
 function getPriceByBarcode(json, barcode) {
 	// console.log("fooJson: " + JSON.stringify(json));
 	return json.filter(function(json){
@@ -7,17 +22,50 @@ function getPriceByBarcode(json, barcode) {
 	});
 }
 
-function loadJSON(path, callback) {
-	var xobj = new XMLHttpRequest();
-	xobj.overrideMimeType("application/json");
-	xobj.open('GET', path, false); // This is not actually recommended, as it has to wait for the 'server' response.
-	xobj.onreadystatechange = function () {
-		if (xobj.readyState == 4 && xobj.status == "200") {
+/* Better use this function instead of loadJSON() */
+function promiseJSON(url) {
+	console.log("function.promiseJSON is called");
+	// Return a new promise.
+	return new Promise(function(resolve, reject) {
+		// Do the usual XHR stuff
+		var req = new XMLHttpRequest();
+		req.overrideMimeType("application/json");
+		req.open("GET", url);
+
+		req.onload = function() {
+			if (req.status == 200) {
+				// Resolve the promise with the response text
+				// console.log("Resolve the promise...!");
+				resolve(req.response);
+			}
+			else {
+				// Otherwise reject with the status text
+				// which will hopefully be a meaningful error
+				reject(Error(req.statusText));
+			}
+		};
+
+		// Handle network errors
+		req.onerror = function() {
+			reject(Error("Network Error"));
+		};
+
+		// Make the request
+		req.send();
+	});
+}
+
+function loadJSON(url, callback) {
+	var req = new XMLHttpRequest();
+	req.overrideMimeType("application/json");
+	req.open('GET', url, false); // This is not actually recommended, as it has to wait for the 'server' response.
+	req.onreadystatechange = function () {
+		if (req.readyState == 4 && req.status == "200") {
 			// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-			callback(xobj.responseText);
+			callback(req.responseText);
 		}
 	};
-	xobj.send(null);  
+	req.send(null);  
 }
 
 function work_header(ws) {

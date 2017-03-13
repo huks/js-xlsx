@@ -237,44 +237,28 @@ function b64it() {
 
 function process_wb(wb) {
 	console.log("function.process_wb is called");
-	var output = "";
 
 	switch(get_radio_value("format")) {
 		case "beauty":
 			console.log("format: beauty");
 			wb_out = convert_beauty(wb);
-			output = JSON.stringify(to_json(wb_out), 2, 2);
 			break;
 		case "the_get":
 			console.log("format: the_get");
 			wb_out = convert_the_get(wb);
-			output = JSON.stringify(to_json(wb_out), 2, 2);
 			break;
 		case "darling":
 			console.log("format: darling");
 			wb_out = convert_darling(wb);
-			output = JSON.stringify(to_json(wb_out), 2, 2);
 			break;
 		case "childking":
 			console.log("format: childking");
 			wb_out = convert_childking(wb);
-			output = JSON.stringify(to_json(wb_out), 2, 2);
 			break;
 		default:
 			console.log("format: cmate");
 			wb_out = convert_cmate(wb);		
-			output = JSON.stringify(to_json(wb_out), 2, 2);
 	}
-	if (out.innerText === undefined) {
-		console.log("out.textContent:");
-		out.textContent = output;
-	} else {
-		console.log("out.innerText:");
-		out.innerText = output;
-	} 
-	if (typeof console !== 'undefined') {
-		console.log("output", new Date());
-	} 
 }
 
 function download_xlsx() {
