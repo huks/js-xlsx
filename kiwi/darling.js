@@ -62,7 +62,7 @@ function convert_darling(workbook) {
 
 			/* item unit price (RMB) : unit price(M) */		
 			try {
-				var fooPrice = getPriceByBarcode(jsonDarling, ws_origin["J"+[i]].w)
+				var fooPrice = getPriceByBarcode(jsonDarling, ws_origin["J"+[i]].w);
 				work_cell(ws, "M"+[i], fooPrice[0].price);
 			} catch (e) {
 				work_cell(ws, "M"+[i], "UNDEFINED");

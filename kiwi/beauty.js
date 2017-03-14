@@ -59,7 +59,7 @@ function convert_beauty(workbook) {
 
 			/* item unit price (RMB) : unit price(L) */		
 			try {
-				var fooPrice = getPriceByBarcode(jsonBeauty, ws_origin["I"+[i]].w)
+				var fooPrice = getPriceByBarcode(jsonBeauty, ws_origin["I"+[i]].w);
 				work_cell(ws, "M"+[i], fooPrice[0].price);
 			} catch (e) {
 				work_cell(ws, "M"+[i], "UNDEFINED");

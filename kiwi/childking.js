@@ -59,7 +59,7 @@ function convert_childking(workbook) {
 
 			/* item unit price (RMB) : unit price(U) */		
 			try {
-				var fooPrice = getPriceByBarcode(jsonChildking, ws_origin["N"+[i]].w)
+				var fooPrice = getPriceByBarcode(jsonChildking, ws_origin["N"+[i]].w);
 				work_cell(ws, "M"+[i], fooPrice[0].price);
 			} catch (e) {
 				work_cell(ws, "M"+[i], "UNDEFINED");
