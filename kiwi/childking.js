@@ -17,8 +17,8 @@ function convert_childking(workbook) {
 	// 	jsonChildking = JSON.parse(response);
 	// });
 
-	promiseJSON("db/childking.json").then(function(response) {
-		jsonChildking = JSON.parse(response);
+	try {
+		jsonChildking = JSON.parse(jinx);
 
 		for(i=2;i<=childking_row_length;i++){
 			/* external order number : merchant order(A) */
@@ -60,8 +60,11 @@ function convert_childking(workbook) {
 			/* item unit price (RMB) : unit price(U) */		
 			try {
 				var fooPrice = getPriceByBarcode(jsonChildking, ws_origin["N"+[i]].w);
+				// var fooPrice = getPriceByBarcode(jsonChildking, ws_origin["N"+[i]].w);
+				// console.log("fooPrice: " + JSON.stringify(fooPrice));
 				work_cell(ws, "M"+[i], fooPrice[0].price);
 			} catch (e) {
+				console.log("Error!", e);
 				work_cell(ws, "M"+[i], "UNDEFINED");
 			}
 
@@ -89,9 +92,9 @@ function convert_childking(workbook) {
 		/* Display DATA converted in HTML */
 		htmlOut(workbook);
 
-	}, function(error) {
-		console.log("Error!", error);
-	});	
+	} catch (e) {
+		alert("Please load the PriceByBarcode data", e); 
+	}		
 
 	return workbook;	
 }

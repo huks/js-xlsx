@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>JS-XLSX Live Demo</title>
+<title>XLSX Connverter Demo</title>
 <style>
 #drop{
 	border:2px dashed #bbb;
@@ -21,7 +21,7 @@
 </style>
 </head>
 <body>
-<b>XLSX Coverter Demo (works in Firefox only!!)</b><br />
+<b>XLSX Converter Demo (Firefox에서만 작동합니다.)</b><br />
 
 <p>1. Select the Format:
 <select name="format">
@@ -33,9 +33,11 @@
 </select>
 </p>
 
-<p>2. Select a XLSX file to convert:&nbsp;<input type="file" name="xlfile" id="xlf" /></p>
+<p>2. Load the PriceByBarcode data:&nbsp;<input type="file" name="pbfile" id="pbf" /></p>
 
-<p>3. Click to download:&nbsp;<button onclick="download_xlsx()">Download</button></p>
+<p>3. Select a XLSX file to convert:&nbsp;<input type="file" name="xlfile" id="xlf" /></p>
+
+<p>4. Click to download:&nbsp;<button onclick="download_xlsx()">Download</button></p>
 
 <hr/>
 
@@ -235,6 +237,19 @@ function b64it() {
 	process_wb(wb);
 }
 
+var jinx;
+function process_pb(wb) {
+	console.log("function.process_pb is called");
+
+	var fsn = wb.SheetNames[0];
+	var ws = wb.Sheets[fsn];
+
+	console.log(JSON.stringify(to_json(wb).Sheet1, 2, 2));
+
+	jinx = JSON.stringify(to_json(wb).Sheet1, 2, 2);
+}
+
+
 function process_wb(wb) {
 	console.log("function.process_wb is called");
 
@@ -322,6 +337,34 @@ function handleDragover(e) {
 // 	drop.addEventListener('drop', handleDrop, false);
 // }
 
+var pbf = document.getElementById('pbf');
+function handlePBFile (e) {
+	console.log("function.handPBFile is called");
+	rABS = document.getElementsByName("userabs")[0].checked;
+	use_worker = document.getElementsByName("useworker")[0].checked;
+	var files = e.target.files;
+	var f = files[0];
+	{
+		var reader = new FileReader();
+		var name = f.name;
+		reader.onload = function(e) {
+			if(typeof console !== 'undefined') console.log("PBFile.onload", new Date(), rABS, use_worker);
+			var data = e.target.result;
+			if(use_worker) {
+				console.log("PBFile.use_worker: TRUE");
+				xw(data, process_pb);
+			} else {
+				if(rABS) {
+					//
+				} else {
+					//
+				}
+			}
+		};
+		if(rABS) reader.readAsBinaryString(f);
+		else reader.readAsArrayBuffer(f);
+	}
+}
 
 var xlf = document.getElementById('xlf');
 function handleFile(e) {
@@ -360,6 +403,7 @@ function handleFile(e) {
 }
 
 if(xlf.addEventListener) xlf.addEventListener('change', handleFile, false);
+if(pbf.addEventListener) pbf.addEventListener('change', handlePBFile, false);
 </script>
 </body>
 </html>

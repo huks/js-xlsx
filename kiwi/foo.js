@@ -15,10 +15,9 @@ function htmlOut(data) {
 	} 
 }
 
-function getPriceByBarcode(json, barcode) {
-	// console.log("fooJson: " + JSON.stringify(json));
-	return json.filter(function(json){
-		return json.barcode == barcode
+function getPriceByBarcode(json, brcd) {
+	return json.filter(function(item){
+		return item.barcode.replace(/\s/g, '') == brcd; 
 	});
 }
 

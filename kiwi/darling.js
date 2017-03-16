@@ -20,6 +20,7 @@ function convert_darling(workbook) {
 	promiseJSON("db/darling.json").then(function(response) {
 		// console.log("Success!: for loop running...");
 		jsonDarling = JSON.parse(response);
+		console.log("typeof jsonDarling: " + typeof jsonDarling);
 
 		for(i=2;i<=darling_row_length;i++){
 			/* external order number : merchant order(A) */
@@ -63,6 +64,7 @@ function convert_darling(workbook) {
 			/* item unit price (RMB) : unit price(M) */		
 			try {
 				var fooPrice = getPriceByBarcode(jsonDarling, ws_origin["J"+[i]].w);
+				console.log("fooPrice: " + JSON.stringify(fooPrice));
 				work_cell(ws, "M"+[i], fooPrice[0].price);
 			} catch (e) {
 				work_cell(ws, "M"+[i], "UNDEFINED");
