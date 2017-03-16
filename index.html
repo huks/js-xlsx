@@ -237,16 +237,9 @@ function b64it() {
 	process_wb(wb);
 }
 
-var jinx;
+var pb_data;
 function process_pb(wb) {
-	console.log("function.process_pb is called");
-
-	var fsn = wb.SheetNames[0];
-	var ws = wb.Sheets[fsn];
-
-	console.log(JSON.stringify(to_json(wb).Sheet1, 2, 2));
-
-	jinx = JSON.stringify(to_json(wb).Sheet1, 2, 2);
+	pb_data = JSON.stringify(to_json(wb).Sheet1, 2, 2);
 }
 
 

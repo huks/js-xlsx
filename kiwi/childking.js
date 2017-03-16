@@ -5,22 +5,16 @@ function convert_childking(workbook) {
 	/* Copy worksheet */
 	var ws_origin = JSON.parse(JSON.stringify(ws));
 
-	var childking_row_length = ws['!ref'].substr(4);
-	// console.log("childking_row_length: " + childking_row_length);
+	var ws_row_length = ws['!ref'].substr(4);
 
 	work_header(ws);
-	ws['!ref'] = "A1:S"+childking_row_length;
+	ws['!ref'] = "A1:S"+ws_row_length;
 
-	/* JSON */
-	var jsonChildking;
-	// loadJSON("db/childking.json", function(response) {
-	// 	jsonChildking = JSON.parse(response);
-	// });
-
+	/* DATA converting */
 	try {
-		jsonChildking = JSON.parse(jinx);
+		var pbDataLoaded = JSON.parse(pb_data);
 
-		for(i=2;i<=childking_row_length;i++){
+		for(i=2;i<=ws_row_length;i++){
 			/* external order number : merchant order(A) */
 			work_cell(ws, "A"+[i], ws_origin["A"+[i]].w);
 
@@ -59,9 +53,7 @@ function convert_childking(workbook) {
 
 			/* item unit price (RMB) : unit price(U) */		
 			try {
-				var fooPrice = getPriceByBarcode(jsonChildking, ws_origin["N"+[i]].w);
-				// var fooPrice = getPriceByBarcode(jsonChildking, ws_origin["N"+[i]].w);
-				// console.log("fooPrice: " + JSON.stringify(fooPrice));
+				var fooPrice = getPriceByBarcode(pbDataLoaded, ws_origin["N"+[i]].w);
 				work_cell(ws, "M"+[i], fooPrice[0].price);
 			} catch (e) {
 				console.log("Error!", e);
