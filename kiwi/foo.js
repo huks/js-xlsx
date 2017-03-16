@@ -4,10 +4,10 @@ function htmlOut(data) {
 	var output = JSON.stringify(to_json(data), 2, 2);
 
 	if (out.innerText === undefined) {
-		console.log("out.textContent:");
+		// console.log("out.textContent:");
 		out.textContent = output;
 	} else {
-		console.log("out.innerText:");
+		// console.log("out.innerText:");
 		out.innerText = output;
 	} 
 	if (typeof console !== 'undefined') {
@@ -23,7 +23,7 @@ function getPriceByBarcode(json, brcd) {
 
 /* Better use this function instead of loadJSON() */
 function promiseJSON(url) {
-	console.log("function.promiseJSON is called");
+	console.log("promiseJSON() is called");
 	// Return a new promise.
 	return new Promise(function(resolve, reject) {
 		// Do the usual XHR stuff
@@ -68,7 +68,6 @@ function loadJSON(url, callback) {
 }
 
 function work_header(ws) {
-	// console.log("function.work_header is called");
 	work_cell(ws, "A1", "外部订单编号"); // external order number	
 	work_cell(ws, "B1", "商品条码"); // barcode
 	work_cell(ws, "C1", "快递公司"); // courier company

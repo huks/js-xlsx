@@ -9,33 +9,21 @@ function convert_cmate(workbook) {
 	 */
 	var ws_origin = JSON.parse(JSON.stringify(ws));
 
-	var cmate_row_length = ws['!ref'].substr(4);
-	// console.log("cmate_row_length: " + cmate_row_length);
+	var ws_row_length = ws['!ref'].substr(4);
 
 	work_header(ws);
 	// work_cell(ws, "T1", "");
 	// work_cell(ws, "U1", "");
 	// work_cell(ws, "V1", "");
-	ws['!ref'] = "A1:S"+cmate_row_length; // UPDATE THE REF
+	ws['!ref'] = "A1:S"+ws_row_length; // UPDATE THE REF
 
-	/* JSON */
+	/* DATA converting */
 	var jsonCmate;
-	// loadJSON("db/cmate.json", function(response) {
-	// 	try {
-	// 		jsonCmate = JSON.parse(response);
-	// 	} catch (e) {
-	// 		// error
-	// 	}
-	// });
 
-	promiseJSON("db/cmate.json").then(function(response) {
-		try {
-			jsonCmate = JSON.parse(response);
-		} catch (e) {
-			// error
-		}		
+	try {
+		var pbDataLoaded = JSON.parse(gPbData);
 
-		for(i=2;i<=cmate_row_length;i++){
+		for(i=2;i<=ws_row_length;i++){
 			/* external order number : order number(A) */
 			work_cell(ws, "A"+[i], ws_origin["A"+[i]].w);
 
@@ -114,13 +102,13 @@ function convert_cmate(workbook) {
 			//work_cell(ws, "U"+[i], "");
 			//work_cell(ws, "V"+[i], "");
 		}
-
+	
 		/* Display DATA converted in HTML */
 		htmlOut(workbook);
-
-	}, function(error) {
-		console.log("Error!", error);
-	});
+	
+	} catch (e) {
+		alert(e);
+	}
 
 	return workbook;	
 }

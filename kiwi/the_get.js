@@ -5,22 +5,16 @@ function convert_the_get(workbook) {
 	/* Copy worksheet */
 	var ws_origin = JSON.parse(JSON.stringify(ws));
 
-	var the_get_row_length = ws['!ref'].substr(4);
-	// console.log("the_get_row_length: " + the_get_row_length);
+	var ws_row_length = ws['!ref'].substr(4);
 
 	work_header(ws);
-	ws['!ref'] = "A1:S"+the_get_row_length;
+	ws['!ref'] = "A1:S"+ws_row_length;
 
-	var jsonTheGet;
+	/* DATA converting */
+	try {
+		var pbDataLoaded = JSON.parse(gPbData);
 
-	promiseJSON("db/the_get.json").then(function(response) {
-		try {
-			jsonTheGet = JSON.parse(response);
-		} catch (e) {
-			// error
-		}
-
-		for(i=2;i<=the_get_row_length;i++){
+		for(i=2;i<=ws_row_length;i++){
 			/* external order number : 订单编号 몰 주문번호(A) */
 			work_cell(ws, "A"+[i], ws_origin["A"+[i]].w);
 
@@ -97,9 +91,9 @@ function convert_the_get(workbook) {
 		/* Display DATA converted in HTML */
 		htmlOut(workbook);
 
-	}, function(error) {
-		console.log("Error!", error);
-	});
+	} catch (e) {
+		alert(e);
+	}
 	
 	return workbook;	
 }

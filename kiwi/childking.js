@@ -12,7 +12,7 @@ function convert_childking(workbook) {
 
 	/* DATA converting */
 	try {
-		var pbDataLoaded = JSON.parse(pb_data);
+		var pbDataLoaded = JSON.parse(gPbData);
 
 		for(i=2;i<=ws_row_length;i++){
 			/* external order number : merchant order(A) */
@@ -85,7 +85,7 @@ function convert_childking(workbook) {
 		htmlOut(workbook);
 
 	} catch (e) {
-		alert("Please load the PriceByBarcode data", e); 
+		alert(e); 
 	}		
 
 	return workbook;	

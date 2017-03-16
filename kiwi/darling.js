@@ -1,28 +1,20 @@
 function convert_darling(workbook) {
-	console.log("function.convert_darling is called");
 	/* Get worksheet */
 	var first_sheet_name = workbook.SheetNames[0];
 	var ws = workbook.Sheets[first_sheet_name];
 	/* Copy worksheet */
 	var ws_origin = JSON.parse(JSON.stringify(ws));
 
-	var darling_row_length = ws['!ref'].substr(4);
+	var ws_row_length = ws['!ref'].substr(4);
 
 	work_header(ws);
-	ws['!ref'] = "A1:S"+darling_row_length;
+	ws['!ref'] = "A1:S"+ws_row_length;
 
-	/* JSON */
-	var jsonDarling;
-	// loadJSON("db/darling.json", function(response) {
-	// 	jsonDarling = JSON.parse(response);
-	// });
+	/* DATA converting */
+	try {
+		var pbDataLoaded = JSON.parse(gPbData);
 
-	promiseJSON("db/darling.json").then(function(response) {
-		// console.log("Success!: for loop running...");
-		jsonDarling = JSON.parse(response);
-		console.log("typeof jsonDarling: " + typeof jsonDarling);
-
-		for(i=2;i<=darling_row_length;i++){
+		for(i=2;i<=ws_row_length;i++){
 			/* external order number : merchant order(A) */
 			work_cell(ws, "A"+[i], ws_origin["A"+[i]].w);
 
@@ -63,10 +55,13 @@ function convert_darling(workbook) {
 
 			/* item unit price (RMB) : unit price(M) */		
 			try {
-				var fooPrice = getPriceByBarcode(jsonDarling, ws_origin["J"+[i]].w);
-				console.log("fooPrice: " + JSON.stringify(fooPrice));
+				var fooPrice = getPriceByBarcode(pbDataLoaded, ws_origin["J"+[i]].w);
+				// if (fooPrice.length > 1) {
+				// 	alert("Duplicate Barcode Data Error: " + ws_origin["J"+[i]].w);
+				// }
 				work_cell(ws, "M"+[i], fooPrice[0].price);
 			} catch (e) {
+				console.log("Error!", e);
 				work_cell(ws, "M"+[i], "UNDEFINED");
 			}
 
@@ -94,9 +89,9 @@ function convert_darling(workbook) {
 		/* Display DATA converted in HTML */
 		htmlOut(workbook);
 
-	}, function(error) {
-		console.log("Error!", error);
-	});
+	} catch (e) {
+		alert(e);
+	}
 	
 	return workbook;	
 }

@@ -1,26 +1,21 @@
 function convert_beauty(workbook) {
-	// console.log("function.convert_beauty is called");
 	/* Get worksheet */
 	var first_sheet_name = workbook.SheetNames[0];
 	var ws = workbook.Sheets[first_sheet_name];
 	/* Copy worksheet */
 	var ws_origin = JSON.parse(JSON.stringify(ws));
 
-	var beauty_row_length = ws['!ref'].substr(4);
+	var ws_row_length = ws['!ref'].substr(4);
 
 	work_header(ws);
-	ws['!ref'] = "A1:S"+beauty_row_length;
+	ws['!ref'] = "A1:S"+ws_row_length;
 
-	/* JSON */
+	/* DATA converting */
 	var jsonBeauty;
-	// loadJSON("db/beauty.json", function(response) {
-	// 	jsonBeauty = JSON.parse(response);
-	// });
+	try {
+		var pbDataLoaded = JSON.parse(gPbData);
 
-	promiseJSON("db/beauty.json").then(function(response) {
-		jsonBeauty = JSON.parse(response);
-
-		for(i=2;i<=beauty_row_length;i++){
+		for(i=2;i<=ws_row_length;i++){
 			/* external order number : merchant order(A) */
 			work_cell(ws, "A"+[i], ws_origin["A"+[i]].w);
 
@@ -59,9 +54,10 @@ function convert_beauty(workbook) {
 
 			/* item unit price (RMB) : unit price(L) */		
 			try {
-				var fooPrice = getPriceByBarcode(jsonBeauty, ws_origin["I"+[i]].w);
+				var fooPrice = getPriceByBarcode(pbDataLoaded, ws_origin["I"+[i]].w);
 				work_cell(ws, "M"+[i], fooPrice[0].price);
 			} catch (e) {
+				console.log("Error!", e);
 				work_cell(ws, "M"+[i], "UNDEFINED");
 			}
 
@@ -89,9 +85,9 @@ function convert_beauty(workbook) {
 		/* Display DATA converted in HTML */
 		htmlOut(workbook);
 
-	}, function(error) {
-		console.log("Error!", error);
-	});		
+	} catch (e) {
+		alert(e);
+	}
 
 	return workbook;	
 }

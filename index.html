@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>XLSX Connverter Demo</title>
+<title>XLSX Converter</title>
 <style>
 #drop{
 	border:2px dashed #bbb;
@@ -21,10 +21,12 @@
 </style>
 </head>
 <body>
-<b>XLSX Converter Demo (Firefox에서만 작동합니다.)</b><br />
+<b>XLSX Converter ver.1 (Firefox에서만 작동합니다.)</b><br />
 
-<p>1. Select the Format:
-<select name="format">
+<p>1. Load the PriceByBarcode data:&nbsp;<input type="file" name="pbfile" id="pbf" /></p>
+
+<p>2. Select the Format:
+<select name="format" id="format">
 <option value="cmate" selected> C-MATE</option>
 <option value="beauty"> 美俏</option>
 <option value="the_get"> GET</option>
@@ -33,11 +35,9 @@
 </select>
 </p>
 
-<p>2. Load the PriceByBarcode data:&nbsp;<input type="file" name="pbfile" id="pbf" /></p>
-
 <p>3. Select a XLSX file to convert:&nbsp;<input type="file" name="xlfile" id="xlf" /></p>
 
-<p>4. Click to download:&nbsp;<button onclick="download_xlsx()">Download</button></p>
+<p>4. Click to download:&nbsp;<button id="btnDownload" onclick="download_xlsx()">Download</button></p>
 
 <hr/>
 
@@ -80,8 +80,8 @@ Use readAsBinaryString: (when available) <input type="checkbox" name="userabs" c
 <script src="kiwi/darling.js"></script>
 <script src="kiwi/childking.js"></script>
 <script>
-var wb_out;
-var fn_out;
+var gWbOut;
+var gFnOut;
 
 var X = XLSX;
 var XW = {
@@ -121,7 +121,7 @@ function fixdata(data) {
 }
 
 function ab2str(data) {
-	console.log("function.ab2str is called");
+	// console.log("ab2str() is called");
 	var o = "", l = 0, w = 10240;
 	for(; l<data.byteLength/w; ++l) o+=String.fromCharCode.apply(null,new Uint16Array(data.slice(l*w,l*w+w)));
 	o+=String.fromCharCode.apply(null, new Uint16Array(data.slice(l*w)));
@@ -148,7 +148,7 @@ function xw_noxfer(data, cb) {
 }
 
 function xw_xfer(data, cb) {
-	console.log("function.xw_xfer is called");
+	// console.log("xw_xfer() is called");
 	var worker = new Worker(rABS ? XW.rABS : XW.norABS);
 	worker.onmessage = function(e) {
 		switch(e.data.t) {
@@ -161,17 +161,17 @@ function xw_xfer(data, cb) {
 			default:
 				// console.log("case: default");
 				xx=ab2str(e.data).replace(/\n/g,"\\n").replace(/\r/g,"\\r");
-				// console.log("function.xw_xfer done");
+				// console.log("xw_xfer() done");
 				cb(JSON.parse(xx)); // process_wb is called!!
 				break;
 		}
 	};
 	if(rABS) {
-		console.log("function.xw_xfer rABS: TRUE");
+		// console.log("xw_xfer() rABS: TRUE");
 		var val = s2ab(data);
 		worker.postMessage(val[1], [val[1]]);
 	} else {
-		console.log("function.xw_xfer rABS: FALSE");
+		// console.log("xw_xfer() rABS: FALSE");
 		worker.postMessage(data, [data]);
 	}
 }
@@ -203,7 +203,7 @@ function to_json(workbook) {
 }
 
 function to_csv(workbook) {
-	console.log("function.to_csv is called"); // something goes wrong here...?
+	console.log("to_csv() is called");
 	var result = [];
 	workbook.SheetNames.forEach(function(sheetName) {
 		var csv = X.utils.sheet_to_csv(workbook.Sheets[sheetName]);
@@ -231,47 +231,48 @@ function to_formulae(workbook) {
 
 var tarea = document.getElementById('b64data');
 function b64it() {
-	console.log("function.b64bit is called");
+	console.log("b64bit() is called");
 	if(typeof console !== 'undefined') console.log("onload", new Date());
 	var wb = X.read(tarea.value, {type: 'base64',WTF:wtf_mode});
 	process_wb(wb);
 }
 
-var pb_data;
+var gPbData; // global PriceByBarcode data
 function process_pb(wb) {
-	pb_data = JSON.stringify(to_json(wb).Sheet1, 2, 2);
+	var fsn = wb.SheetNames[0];
+	gPbData = JSON.stringify(to_json(wb)[fsn], 2, 2);
 }
 
 
 function process_wb(wb) {
-	console.log("function.process_wb is called");
+	// console.log("process_wb() is called");
 
 	switch(get_radio_value("format")) {
 		case "beauty":
 			console.log("format: beauty");
-			wb_out = convert_beauty(wb);
+			gWbOut = convert_beauty(wb);
 			break;
 		case "the_get":
 			console.log("format: the_get");
-			wb_out = convert_the_get(wb);
+			gWbOut = convert_the_get(wb);
 			break;
 		case "darling":
 			console.log("format: darling");
-			wb_out = convert_darling(wb);
+			gWbOut = convert_darling(wb);
 			break;
 		case "childking":
 			console.log("format: childking");
-			wb_out = convert_childking(wb);
+			gWbOut = convert_childking(wb);
 			break;
 		default:
 			console.log("format: cmate");
-			wb_out = convert_cmate(wb);		
+			gWbOut = convert_cmate(wb);		
 	}
 }
 
 function download_xlsx() {
 
-	var xout = XLSX.write(wb_out, {bookType:'xlsx', bookSST:true, type: 'binary'});
+	var xout = XLSX.write(gWbOut, {bookType:'xlsx', bookSST:true, type: 'binary'});
 
 	function s2ab_blob(s) {
 		var buf = new ArrayBuffer(s.length);
@@ -280,14 +281,14 @@ function download_xlsx() {
 		return buf;
 	}
 
-	var fooFileName = "converted." + fn_out;
+	var fooFileName = "converted." + gFnOut;
 
 	saveAs(new Blob([s2ab_blob(xout)],{type:"application/octet-stream"}), fooFileName)
 }
 
 var drop = document.getElementById('drop');
 function handleDrop(e) {
-	console.log("function.handleDrop is called");
+	console.log("handleDrop() is called");
 	e.stopPropagation();
 	e.preventDefault();
 	rABS = document.getElementsByName("userabs")[0].checked;
@@ -331,8 +332,8 @@ function handleDragover(e) {
 // }
 
 var pbf = document.getElementById('pbf');
-function handlePBFile (e) {
-	console.log("function.handPBFile is called");
+function handlePbFile (e) {
+	// console.log("handlePbFile() is called");
 	rABS = document.getElementsByName("userabs")[0].checked;
 	use_worker = document.getElementsByName("useworker")[0].checked;
 	var files = e.target.files;
@@ -341,11 +342,11 @@ function handlePBFile (e) {
 		var reader = new FileReader();
 		var name = f.name;
 		reader.onload = function(e) {
-			if(typeof console !== 'undefined') console.log("PBFile.onload", new Date(), rABS, use_worker);
+			if(typeof console !== 'undefined') console.log("handlePbFile.onload", new Date(), rABS, use_worker);
 			var data = e.target.result;
 			if(use_worker) {
-				console.log("PBFile.use_worker: TRUE");
-				xw(data, process_pb);
+				// console.log("handlePbFile.use_worker: TRUE");
+				xw(data, process_pb);				
 			} else {
 				if(rABS) {
 					//
@@ -353,6 +354,8 @@ function handlePBFile (e) {
 					//
 				}
 			}
+			document.getElementById("format").disabled = false;
+			document.getElementById("xlf").disabled = false;
 		};
 		if(rABS) reader.readAsBinaryString(f);
 		else reader.readAsArrayBuffer(f);
@@ -360,8 +363,8 @@ function handlePBFile (e) {
 }
 
 var xlf = document.getElementById('xlf');
-function handleFile(e) {
-	console.log("function.handleFile is called");
+function handleXlFile(e) {
+	// console.log("handleXlFile() is called");
 	rABS = document.getElementsByName("userabs")[0].checked;
 	use_worker = document.getElementsByName("useworker")[0].checked;
 	var files = e.target.files;
@@ -369,34 +372,45 @@ function handleFile(e) {
 	{
 		var reader = new FileReader();
 		var name = f.name;
-		fn_out = name; // file name for download!!
+		gFnOut = name; // file name for download!!
 		reader.onload = function(e) {
-			if(typeof console !== 'undefined') console.log("onload", new Date(), rABS, use_worker);
+			if(typeof console !== 'undefined') console.log("handleXlFile.onload", new Date(), rABS, use_worker);
 			var data = e.target.result;
 			if(use_worker) {
-				console.log("use_worker: TRUE");
+				// console.log("use_worker: TRUE");
 				xw(data, process_wb);
 			} else {
-				console.log("use_worker: FALSE");
+				// console.log("use_worker: FALSE");
 				var wb;
 				if(rABS) {
-					console.log("function.handleFile rABS: TRUE");
+					// console.log("handleXlFile() rABS: TRUE");
 					wb = X.read(data, {type: 'binary', sheetStubs: 'false'});
 				} else {
-					console.log("function.handleFile rABS: FALSE");
+					// console.log("handleXlFile() rABS: FALSE");
 					var arr = fixdata(data);
 					wb = X.read(btoa(arr), {type: 'base64'});
 				}
 				process_wb(wb);
 			}
+			document.getElementById("btnDownload").disabled = false;
 		};
 		if(rABS) reader.readAsBinaryString(f);
 		else reader.readAsArrayBuffer(f);
 	}
 }
 
-if(xlf.addEventListener) xlf.addEventListener('change', handleFile, false);
-if(pbf.addEventListener) pbf.addEventListener('change', handlePBFile, false);
+document.getElementById("format").disabled = true;
+document.getElementById("xlf").disabled = true;
+document.getElementById("btnDownload").disabled = true;
+
+if(pbf.addEventListener) pbf.addEventListener('change', handlePbFile, false);
+if(format.addEventListener) format.addEventListener('change', handleFormat, false);
+if(xlf.addEventListener) xlf.addEventListener('change', handleXlFile, false);
+
+function handleFormat() {
+	document.getElementById("btnDownload").disabled = true;
+	out.innerText = null;
+}
 </script>
 </body>
 </html>
