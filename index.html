@@ -21,7 +21,7 @@
 </style>
 </head>
 <body>
-<b>XLSX Converter ver.1 (Firefox에서만 작동합니다.)</b><br />
+<b>XLSX Converter ver.1</b><br />
 
 <p>1. Load the PriceByBarcode data:&nbsp;<input type="file" name="pbfile" id="pbf" /></p>
 
@@ -53,7 +53,7 @@
 <!--<textarea id="b64data">... or paste a base64-encoding here</textarea>
 <input type="button" id="dotext" value="Click here to process the base64 text" onclick="b64it();"/><br />-->
 <div style="display:none">
-<input type="checkbox" name="useworker" checked>
+<input type="checkbox" name="useworker" unchecked> <!-- if checked, it works in Firefox only!! -->
 <input type="checkbox" name="xferable" checked>
 <input type="checkbox" name="userabs" checked>
 </div>
@@ -281,7 +281,7 @@ function download_xlsx() {
 		return buf;
 	}
 
-	var fooFileName = "converted." + gFnOut;
+	var fooFileName = "cvtd." + gFnOut;
 
 	saveAs(new Blob([s2ab_blob(xout)],{type:"application/octet-stream"}), fooFileName)
 }
@@ -342,17 +342,20 @@ function handlePbFile (e) {
 		var reader = new FileReader();
 		var name = f.name;
 		reader.onload = function(e) {
-			if(typeof console !== 'undefined') console.log("handlePbFile.onload", new Date(), rABS, use_worker);
+			if(typeof console !== 'undefined') console.log("handlePbFile.onload", new Date(), "rABS:"+rABS, "use_worker:"+use_worker);
 			var data = e.target.result;
 			if(use_worker) {
 				// console.log("handlePbFile.use_worker: TRUE");
 				xw(data, process_pb);				
 			} else {
+				var pb;
 				if(rABS) {
-					//
+					pb = X.read(data, {type: 'binary', sheetStubs: 'false'});
 				} else {
-					//
+					var arr = fixdata(data);
+					pb = X.read(btoa(arr), {type: 'base64'});
 				}
+				process_pb(pb);
 			}
 			document.getElementById("format").disabled = false;
 			document.getElementById("xlf").disabled = false;
@@ -374,7 +377,7 @@ function handleXlFile(e) {
 		var name = f.name;
 		gFnOut = name; // file name for download!!
 		reader.onload = function(e) {
-			if(typeof console !== 'undefined') console.log("handleXlFile.onload", new Date(), rABS, use_worker);
+			if(typeof console !== 'undefined') console.log("handleXlFile.onload", new Date(), "rABS:"+rABS, "use_worker:"+use_worker);
 			var data = e.target.result;
 			if(use_worker) {
 				// console.log("use_worker: TRUE");
