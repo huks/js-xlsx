@@ -25,8 +25,8 @@
 
 <p>1. Load the PriceByBarcode data:&nbsp;<input type="file" name="pbfile" id="pbf" /></p>
 
-<p>2. Select the Format:
-<select name="format" id="format">
+<p>2. Select the Template:
+<select name="template" id="template">
 <option value="cmate" selected> C-MATE</option>
 <option value="beauty"> 美俏</option>
 <option value="the_get"> GET</option>
@@ -43,10 +43,6 @@
 
 <p>DATA converted:</p>
 <pre id="out"></pre>
-
-<!--<input type="radio" name="format" value="csv" checked> CSV<br>
-<input type="radio" name="format" value="json"> JSON<br>
-<input type="radio" name="format" value="form"> FORMULAE<br> -->
 
 <!--<div id="drop">Drop an XLSX / XLSM / XLSB / ODS / XLS / XML file here to see sheet data</div>-->
 
@@ -247,25 +243,25 @@ function process_pb(wb) {
 function process_wb(wb) {
 	// console.log("process_wb() is called");
 
-	switch(get_radio_value("format")) {
+	switch(get_radio_value("template")) {
 		case "beauty":
-			console.log("format: beauty");
+			console.log("template: beauty");
 			gWbOut = convert_beauty(wb);
 			break;
 		case "the_get":
-			console.log("format: the_get");
+			console.log("template: the_get");
 			gWbOut = convert_the_get(wb);
 			break;
 		case "darling":
-			console.log("format: darling");
+			console.log("template: darling");
 			gWbOut = convert_darling(wb);
 			break;
 		case "childking":
-			console.log("format: childking");
+			console.log("template: childking");
 			gWbOut = convert_childking(wb);
 			break;
 		default:
-			console.log("format: cmate");
+			console.log("template: cmate");
 			gWbOut = convert_cmate(wb);		
 	}
 }
@@ -357,7 +353,7 @@ function handlePbFile (e) {
 				}
 				process_pb(pb);
 			}
-			document.getElementById("format").disabled = false;
+			document.getElementById("template").disabled = false;
 			document.getElementById("xlf").disabled = false;
 		};
 		if(rABS) reader.readAsBinaryString(f);
@@ -402,15 +398,15 @@ function handleXlFile(e) {
 	}
 }
 
-document.getElementById("format").disabled = true;
+document.getElementById("template").disabled = true;
 document.getElementById("xlf").disabled = true;
 document.getElementById("btnDownload").disabled = true;
 
 if(pbf.addEventListener) pbf.addEventListener('change', handlePbFile, false);
-if(format.addEventListener) format.addEventListener('change', handleFormat, false);
+if(template.addEventListener) template.addEventListener('change', handleTemplate, false);
 if(xlf.addEventListener) xlf.addEventListener('change', handleXlFile, false);
 
-function handleFormat() {
+function handleTemplate() {
 	document.getElementById("btnDownload").disabled = true;
 	out.innerText = null;
 }
